@@ -15,24 +15,35 @@ const createProductSchema = z.object({
 
 const createProduct: FastifyPluginAsync = async (fastify) => {
     fastify.post("/products", async (request: FastifyRequest, reply: FastifyReply) => {
-        const data = createProductSchema.parse(request.body);
-
-        const product = await prisma.products.create({
-            data: {
-                title: data.title,
-                description: data.description,
-                img: data.img,
-                price: data.price,
-                categoryDelivery: data.categoryDelivery,
-                stock: data.stock,
-                color: data.color,
-                categoryId: data.categoryId,
-                createdAt: new Date(),
-                updatedAt: new Date()
+        try {
+            const data = createProductSchema.parse(request.body);
+    
+            const product = await prisma.products.create({
+                data: {
+                    title: data.title,
+                    description: data.description,
+                    img: data.img,
+                    price: data.price,
+                    categoryDelivery: data.categoryDelivery,
+                    stock: data.stock,
+                    color: data.color,
+                    categoryId: data.categoryId,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                }
+            });
+    
+            reply.status(200).send(product);
+        } catch (error) {
+            if (error instanceof z.ZodError) {
+                return reply.status(400).send({
+                    message: "Dados inválidos!",
+                    errors: error.errors
+                });
             }
-        });
 
-        reply.status(200).send(product);
+            return reply.status(500).send(error);
+        }
     });
 }
 
