@@ -1,33 +1,40 @@
-import { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyPluginAsync } from "fastify";
+import { UploadApiErrorResponse, UploadApiResponse } from "cloudinary";
+
 import cloudinary from "../../../plugins/cloudnary";
 
 const uploadPostRoute: FastifyPluginAsync = async (fastify) => {
-    fastify.post('/upload', async (request: FastifyRequest, reply: FastifyReply) => {
-        const file = await request.file(); 
-        
-        if (!file) {
-          return reply.status(400).send({ error: 'Nenhum arquivo enviado!' });
-        }
-      
-        try {
-          const result = await new Promise((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream({ folder: 'uploads' }, (error: any, result: unknown) => {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(result);
-              }
-            });
-      
-            file.file.pipe(stream); 
-          });
-      
-          return reply.status(201).send(result);
-        } catch (error) {
-          console.error('Erro ao fazer upload:', error);
-          return reply.status(500).send({ error: error });
-        }
-      });
-}
+  fastify.post('/upload', async (req, reply) => {
+    // const data = await req.file();
+
+    // if (!data) {
+    //   reply.status(400).send({ error: 'Nenhum arquivo enviado.' });
+    //   return;
+    // }
+
+    // try {
+    //   const result = await new Promise<UploadApiResponse>((resolve, reject) => {
+    //     const uploadStream = cloudinary.uploader.upload_stream(
+    //       { folder: 'uploads' },
+    //       (error: UploadApiErrorResponse | null, result: UploadApiResponse | undefined) => {
+    //         if (error) {
+    //           reject(error);
+    //         } else {
+    //           resolve(result as UploadApiResponse);
+    //         }
+    //       }
+    //     );
+
+    //     data.file.pipe(uploadStream); 
+    //   });
+
+    //   return reply.status(200).send({ url: result.secure_url })
+
+    // } catch (error) {
+    //   console.error(error);
+    //   reply.status(500).send({ error: 'Falha ao fazer upload da imagem.' });
+    // }
+  });
+};
 
 export default uploadPostRoute;
